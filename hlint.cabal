@@ -130,6 +130,7 @@ library
         Hint.Duplicate
         Hint.Export
         Hint.Extensions
+        Hint.Foo
         Hint.Import
         Hint.Lambda
         Hint.List

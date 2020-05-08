@@ -23,6 +23,7 @@ import Hint.Naming
 import Hint.Pattern
 import Hint.Import
 import Hint.Export
+import Hint.Foo
 import Hint.Pragma
 import Hint.Restrict
 import Hint.Extensions
@@ -38,7 +39,7 @@ data HintBuiltin =
     HintList | HintListRec | HintMonad | HintLambda |
     HintBracket | HintNaming | HintPattern | HintImport | HintExport |
     HintPragma | HintExtensions | HintUnsafe | HintDuplicate | HintRestrict |
-    HintComment | HintNewType | HintSmell
+    HintComment | HintNewType | HintSmell | HintFoo
     deriving (Show,Eq,Ord,Bounded,Enum)
 
 
@@ -62,6 +63,7 @@ builtin x = case x of
     HintPattern    -> decl patternHint
     HintMonad      -> decl monadHint
     HintExtensions -> modu extensionsHint
+    HintFoo        -> decl fooHint
     where
         wrap = timed "Hint" (drop 4 $ show x) . forceList
         decl f = mempty{hintDecl=const $ \a b c -> wrap $ f a b c}
