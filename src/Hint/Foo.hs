@@ -17,7 +17,7 @@ data WarnFoo = WarnFoo
 fooHint :: DeclHint'
 fooHint _ _ old
   | Just WarnFoo{newDecl} <- fooField old
-  = [(suggestN' "Consider not using data Foo, maybe FooBar?" old newDecl)]
+  = [(ignore' "Forbidden Foo type" old newDecl [])]
 fooHint _ _ _ = []
 
 -- data Foo = ...
