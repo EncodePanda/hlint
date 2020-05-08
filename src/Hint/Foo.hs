@@ -25,15 +25,15 @@ fooField :: LHsDecl GhcPs -> Maybe WarnFoo
 fooField (L loc (TyClD ext decl@(DataDecl _ name  _ _ _)))
     | typeNameIsFoo name =
         Just WarnFoo
-              { newDecl = L loc $ TyClD ext decl {tcdLName = toTcdLName "Bar" name}
+              { newDecl = L loc $ TyClD ext decl {tcdLName = withSuffix "Bar" name}
               }
 fooField _ = Nothing
 
 
 typeNameIsFoo name = unsafePrettyPrint name == "Foo"
 
--- toTcdLName :: String -> Located (IdP GhcPs)
-toTcdLName newName originalDecl = transformBi replace originalDecl
+-- withSuffix :: String -> Located (IdP GhcPs)
+withSuffix suffix originalDecl = transformBi (replace suffix) originalDecl
   where
-    replace :: OccName -> OccName
-    replace (unsafePrettyPrint -> name) = mkOccName srcDataName "Bar"
+    replace :: String -> OccName -> OccName
+    replace suffix (unsafePrettyPrint -> name) = mkOccName srcDataName (name <> "Bar")
