@@ -1,29 +1,30 @@
+{-# LANGUAGE NamedFieldPuns #-}
 module Hint.Foo where
 
-import Hint.Type (Idea, DeclHint', Note(DecreasesLaziness), ideaNote, ignoreNoSuggestion', suggestN')
-
-import Data.List (isSuffixOf)
+import Hint.Type
 import GHC.Hs.Decls
 import GHC.Hs
-import Outputable
 import SrcLoc
+import Language.Haskell.GhclibParserEx.GHC.Utils.Outputable
+
+data WarnFoo = WarnFoo
+    { newDecl :: LHsDecl GhcPs
+    }
 
 fooHint :: DeclHint'
 fooHint _ _ old
-  | Just WarnNewtype{newDecl, insideType} <- fooField old
-  = [(suggestN' "Consider not using data Foo" old newDecl)
-        {ideaNote = [DecreasesLaziness | warnBang insideType]}]
+  | Just WarnFoo{newDecl} <- fooField old
+  = [(suggestN' "Consider not using data Foo" old newDecl)]
 fooHint _ _ _ = []
 
 -- data Foo = ...
-fooField :: LHsDecl GhcPs -> Maybe WarnNewtype
-fooField (L loc (TyClD ext decl@(DataDecl _ _ _ _ _)))
-    | Just inType <- simpleCons constructor =
-        Just WarnNewtype
-              { newDecl = L loc $ TyClD ext decl {tcdDataDefn = dataDef
-                  { dd_ND = NewType
-                  , dd_cons = map (\(L consloc x) -> L consloc $ dropConsBang x) $ dd_cons dataDef
-                  }}
-              , insideType = inType
+fooField :: LHsDecl GhcPs -> Maybe WarnFoo
+fooField (L loc (TyClD ext decl@(DataDecl _ name  _ _ _)))
+    | typeNameIsFoo name =
+        Just WarnFoo
+              { newDecl = L loc $ TyClD ext decl
               }
 fooField _ = Nothing
+
+
+typeNameIsFoo name = unsafePrettyPrint name == "Foo"
